@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>IMSS Bienestar</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        /* ===== ESTILOS GLOBALES ===== */
+        :root {
+            --color-imss: #1E5B4F;
+            --color-imss-hover: #18493f;
+            --color-imss-light: #e8f1ef;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .text-primary {
+            color: var(--color-imss) !important;
+        }
+        
+        .bg-primary {
+            background-color: var(--color-imss) !important;
+        }
+        
+        .border-primary {
+            border-color: var(--color-imss) !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--color-imss) !important;
+            border-color: var(--color-imss) !important;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--color-imss-hover) !important;
+            border-color: var(--color-imss-hover) !important;
+        }
+        
+        .btn-outline-primary {
+            color: var(--color-imss) !important;
+            border-color: var(--color-imss) !important;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--color-imss) !important;
+            border-color: var(--color-imss) !important;
+            color: white !important;
+        }
+
+        .imss-logo {
+            display: inline-block;
+            width: 220px;
+            height: 50px;
+            background-color: #1E5B4F;
+            -webkit-mask: url("img/imb_b.svg") center / contain no-repeat;
+            mask: url("img/imb_b.svg") center / contain no-repeat;
+        }
+        
+        /* ===== FORMULARIO ===== */
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-section h5 {
+            color: var(--color-imss);
+            border-bottom: 2px solid var(--color-imss);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .required-field::after {
+            content: "*";
+            color: #dc3545;
+            margin-left: 4px;
+        }
+        
+        .validation-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .validation-success {
+            color: #28a745;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .suggestions-box {
+            position: absolute;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .suggestions-box .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        
+        .suggestions-box .suggestion-item:hover {
+            background: var(--color-imss-light);
+        }
+        
+        .document-upload {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .document-upload:hover {
+            border-color: var(--color-imss);
+            background: var(--color-imss-light);
+        }
+        
+        .file-upload-status {
+            display: none;
+            margin-top: 5px;
+        }
+        
+        .file-upload-status.visible {
+            display: block;
+        }
+        
+        .file-name {
+            color: var(--color-imss);
+            font-weight: 500;
+        }
+        
+        .loading-spinner {
+            display: none;
+        }
+        
+        .loading-spinner.visible {
+            display: inline-block;
+        }
+        
+        .back-to-top {
+            background-color: var(--color-imss) !important;
+            border-color: var(--color-imss) !important;
+        }
+        
+        .back-to-top:hover {
+            background-color: var(--color-imss-hover) !important;
+            border-color: var(--color-imss-hover) !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== TOPBAR ===== -->
+    <div class="container-fluid py-2 border-bottom d-none d-lg-block">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-lg-start mb-2 mb-lg-0">
+                    <div class="d-inline-flex align-items-center">
+                        <a class="text-decoration-none text-body pe-3" href=""><i class="bi bi-telephone me-2"></i>+012 345 6789</a>
+                        <span class="text-body">|</span>
+                        <a class="text-decoration-none text-body px-3" href=""><i class="bi bi-envelope me-2"></i>info@example.com</a>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center text-lg-end">
+                    <div class="d-inline-flex align-items-center">
+                        <a class="text-body px-2" href=""><i class="fab fa-facebook-f"></i></a>
+                        <a class="text-body px-2" href=""><i class="fab fa-twitter"></i></a>
+                        <a class="text-body px-2" href=""><i class="fab fa-linkedin-in"></i></a>
+                        <a class="text-body px-2" href=""><i class="fab fa-instagram"></i></a>
+                        <a class="text-body ps-2" href=""><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== NAVBAR ===== -->
+    <div class="container-fluid sticky-top bg-white shadow-sm mb-5">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
+                <a href="index.html" class="navbar-brand">
+                    <span class="imss-logo" role="img" aria-label="IMSS Bienestar"></span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto py-0">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="about.html" class="nav-item nav-link">About</a>
+                        <a href="service.html" class="nav-item nav-link">Service</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">Pages</a>
+                            <div class="dropdown-menu m-0">
+                                <a href="blog.html" class="dropdown-item active">Blog Grid</a>
+                                <a href="team.html" class="dropdown-item">The Team</a>
+                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
+                                <a href="appointment.html" class="dropdown-item">Appointment</a>
+                                <a href="search.html" class="dropdown-item">Search</a>
+                            </div>
+                        </div>
+                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- FORMULARIO DE CARGA DE CANDIDATO                          -->
+    <!-- ========================================================= -->
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5" style="max-width: 700px;">
+                <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Carga de Candidato</h5>
+                <h1 class="display-4">Registro de Nuevo Candidato</h1>
+                <p class="text-muted">Complete todos los campos marcados con <span class="text-danger">*</span></p>
+            </div>
+            
+            <form id="candidatoForm" novalidate>
+                <!-- ===== SECCIÓN 1: DATOS PERSONALES ===== -->
+                <div class="form-section">
+                    <h5><i class="fas fa-user me-2"></i>Datos Personales</h5>
+                    <div class="row g-3">
+                        <!-- CURP -->
+                        <div class="col-md-6">
+                            <label for="curp" class="form-label required-field">CURP</label>
+                            <input type="text" class="form-control" id="curp" 
+                                   maxlength="18" required
+                                   placeholder="Ej: GODE561231HDFRRL09"
+                                   autocomplete="off">
+                            <div id="curpLoading" class="loading-spinner">
+                                <i class="fas fa-spinner fa-spin"></i> Validando...
+                            </div>
+                            <div class="validation-error" id="curpError">
+                                <i class="fas fa-exclamation-circle"></i> <span id="curpErrorMessage"></span>
+                            </div>
+                            <div class="validation-success" id="curpSuccess">
+                                <i class="fas fa-check-circle"></i> <span id="curpSuccessMessage"></span>
+                            </div>
+                            <small class="text-muted">18 caracteres alfanuméricos</small>
+                        </div>
+                        
+                        <!-- Nombre Completo -->
+                        <div class="col-md-6">
+                            <label for="nombreCompleto" class="form-label required-field">Nombre Completo</label>
+                            <input type="text" class="form-control" id="nombreCompleto" required
+                                   placeholder="Apellido Paterno Materno Nombre(s)">
+                            <div class="invalid-feedback">El nombre completo es obligatorio</div>
+                        </div>
+                        
+                        <!-- Fecha de Nacimiento y Edad -->
+                        <div class="col-md-4">
+                            <label for="fechaNacimiento" class="form-label required-field">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="fechaNacimiento" required>
+                            <div class="invalid-feedback">La fecha de nacimiento es obligatoria</div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="edad" class="form-label">Edad</label>
+                            <input type="number" class="form-control" id="edad" readonly>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ===== SECCIÓN 2: DATOS DE LA UNIDAD ===== -->
+                <div class="form-section">
+                    <h5><i class="fas fa-hospital me-2"></i>Datos de la Unidad</h5>
+                    <div class="row g-3">
+                        <!-- CLUES -->
+                        <div class="col-md-4 position-relative">
+                            <label for="clues" class="form-label required-field">CLUES de la unidad</label>
+                            <input type="text" class="form-control" id="clues" required
+                                   placeholder="Escriba para buscar..." autocomplete="off">
+                            <div id="cluesSuggestions" class="suggestions-box"></div>
+                            <div id="cluesLoading" class="loading-spinner">
+                                <i class="fas fa-spinner fa-spin"></i> Buscando...
+                            </div>
+                            <div class="validation-error" id="cluesError">
+                                <i class="fas fa-exclamation-circle"></i> <span id="cluesErrorMessage"></span>
+                            </div>
+                            <div class="invalid-feedback">La CLUES es obligatoria</div>
+                        </div>
+                        
+                        <!-- Nombre de la Unidad -->
+                        <div class="col-md-4">
+                            <label for="nombreUnidad" class="form-label">Nombre de la unidad</label>
+                            <input type="text" class="form-control" id="nombreUnidad" readonly>
+                        </div>
+                        
+                        <!-- Estado y Municipio -->
+                        <div class="col-md-2">
+                            <label for="estado" class="form-label">Estado</label>
+                            <input type="text" class="form-control" id="estado" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="municipio" class="form-label">Municipio</label>
+                            <input type="text" class="form-control" id="municipio" readonly>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ===== SECCIÓN 3: DATOS DEL PUESTO ===== -->
+                <div class="form-section">
+                    <h5><i class="fas fa-briefcase me-2"></i>Datos del Puesto</h5>
+                    <div class="row g-3">
+                        <!-- Puesto Solicitado -->
+                        <div class="col-md-6">
+                            <label for="puestoSolicitado" class="form-label required-field">Puesto solicitado</label>
+                            <select class="form-select" id="puestoSolicitado" required>
+                                <option value="">Seleccione un puesto...</option>
+                            </select>
+                            <div id="puestoLoading" class="loading-spinner">
+                                <i class="fas fa-spinner fa-spin"></i> Cargando puestos...
+                            </div>
+                            <div class="invalid-feedback">El puesto es obligatorio</div>
+                        </div>
+                        
+                        <!-- Nivel del Puesto -->
+                        <div class="col-md-6">
+                            <label for="nivelPuesto" class="form-label">Nivel del puesto</label>
+                            <input type="text" class="form-control" id="nivelPuesto" readonly>
+                        </div>
+                        
+                        <!-- Etiqueta de Perfil -->
+                        <div class="col-md-6">
+                            <label for="etiquetaPerfil" class="form-label">Etiqueta de perfil</label>
+                            <select class="form-select" id="etiquetaPerfil">
+                                <option value="Normal">Normal</option>
+                                <option value="Especial">Especial</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Observaciones -->
+                        <div class="col-md-12">
+                            <label for="observaciones" class="form-label">Observaciones del CE</label>
+                            <textarea class="form-control" id="observaciones" rows="3" maxlength="500"
+                                      placeholder="Máximo 500 caracteres"></textarea>
+                            <div id="contadorCaracteres" class="text-end text-muted small">0/500</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ===== SECCIÓN 4: CARGA DE DOCUMENTOS ===== -->
+                <div class="form-section">
+                    <h5><i class="fas fa-file-pdf me-2"></i>Carga de Documentos</h5>
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-info-circle"></i> Formatos aceptados: PDF | Tamaño máximo: 5MB por archivo
+                    </p>
+                    
+                    <div id="documentosContainer">
+                        <!-- Los documentos se generarán dinámicamente -->
+                    </div>
+                    
+                    <button type="button" class="btn btn-outline-primary" id="agregarDocumento">
+                        <i class="fas fa-plus me-2"></i>Agregar Documento
+                    </button>
+                </div>
+                
+                <!-- ===== BOTONES DE ACCIÓN ===== -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg px-5" id="btnGuardar">
+                        <i class="fas fa-save me-2"></i>Guardar Candidato
+                    </button>
+                    <button type="reset" class="btn btn-secondary btn-lg px-5" id="btnLimpiar">
+                        <i class="fas fa-undo me-2"></i>Limpiar Formulario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- ========================================================= -->
+    <!-- FIN DEL FORMULARIO                                        -->
+    <!-- ========================================================= -->
+
+    <!-- ===== FOOTER SIMPLIFICADO ===== -->
+    <div class="container-fluid bg-dark text-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p class="mb-0">
+                        &copy; <a class="text-primary text-decoration-none" href="#">IMSS Bienestar</a>. Todos los derechos reservados.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <!-- ========================================================= -->
+    <!-- SCRIPTS                                                   -->
+    <!-- ========================================================= -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+        const tiposDocumento = [
+            'Identificación Oficial (INE/IFE)',
+            'Comprobante de Domicilio',
+            'Cédula Profesional',
+            'Acta de Nacimiento',
+            'CURP'
+        ];
+        
+        let documentosCargados = [];
+        let contadorDocumentos = 0;
+        let timeoutBusqueda = null;
+        
+        // ============================================
+        // FUNCIONES DE UTILERÍA
+        // ============================================
+        
+        function mostrarError(campo, mensaje) {
+            const errorDiv = $(`#${campo}Error`);
+            const messageSpan = $(`#${campo}ErrorMessage`);
+            if (messageSpan.length) messageSpan.text(mensaje);
+            errorDiv.show();
+            $(`#${campo}Success`).hide();
+            $(`#${campo}`).removeClass('is-valid').addClass('is-invalid');
+        }
+        
+        function mostrarExito(campo, mensaje) {
+            const successDiv = $(`#${campo}Success`);
+            const messageSpan = $(`#${campo}SuccessMessage`);
+            if (messageSpan.length) messageSpan.text(mensaje);
+            successDiv.show();
+            $(`#${campo}Error`).hide();
+            $(`#${campo}`).removeClass('is-invalid').addClass('is-valid');
+        }
+        
+        function limpiarValidacion(campo) {
+            $(`#${campo}Error`).hide();
+            $(`#${campo}Success`).hide();
+            $(`#${campo}`).removeClass('is-valid is-invalid');
+        }
+        
+        function mostrarLoading(campo, mostrar) {
+            if (mostrar) {
+                $(`#${campo}Loading`).addClass('visible');
+            } else {
+                $(`#${campo}Loading`).removeClass('visible');
+            }
+        }
+        
+        // ============================================
+        // 1. VALIDACIÓN DE CURP (R01 y R02)
+        // ============================================
+        $('#curp').on('blur', function() {
+            const curp = $(this).val().toUpperCase();
+            $(this).val(curp);
+            
+            if (curp.length === 0) {
+                limpiarValidacion('curp');
+                return;
+            }
+            
+            if (curp.length !== 18) {
+                mostrarError('curp', 'La CURP debe tener 18 caracteres');
+                return;
+            }
+            
+            mostrarLoading('curp', true);
+            
+            $.ajax({
+                url: '/api/validate_curp',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ curp: curp }),
+                success: function(data) {
+                    mostrarLoading('curp', false);
+                    if (data.valido) {
+                        mostrarExito('curp', data.mensaje);
+                    } else {
+                        mostrarError('curp', data.mensaje);
+                    }
+                },
+                error: function() {
+                    mostrarLoading('curp', false);
+                    mostrarError('curp', 'Error de conexión al validar CURP');
+                }
+            });
+        });
+        
+        // ============================================
+        // 2. CÁLCULO DE EDAD
+        // ============================================
+        $('#fechaNacimiento').on('change', function() {
+            const fecha = $(this).val();
+            if (!fecha) {
+                $('#edad').val('');
+                return;
+            }
+            
+            const hoy = new Date();
+            const nacimiento = new Date(fecha);
+            let edad = hoy.getFullYear() - nacimiento.getFullYear();
+            const mes = hoy.getMonth() - nacimiento.getMonth();
+            
+            if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+                edad--;
+            }
+            
+            $('#edad').val(edad > 0 ? edad : '');
+        });
+        
+        // ============================================
+        // 3. BÚSQUEDA DE CLUES (R04)
+        // ============================================
+        $('#clues').on('input', function() {
+            const query = $(this).val();
+            const suggestionsBox = $('#cluesSuggestions');
+            
+            if (timeoutBusqueda) clearTimeout(timeoutBusqueda);
+            
+            if (query.length < 2) {
+                suggestionsBox.hide();
+                limpiarValidacion('clues');
+                return;
+            }
+            
+            mostrarLoading('clues', true);
+            
+            timeoutBusqueda = setTimeout(function() {
+                $.ajax({
+                    url: '/api/search_clues',
+                    method: 'GET',
+                    data: { q: query },
+                    success: function(data) {
+                        mostrarLoading('clues', false);
+                        
+                        if (data.length === 0) {
+                            suggestionsBox.html('<div class="suggestion-item text-muted">No se encontraron coincidencias</div>');
+                            suggestionsBox.show();
+                            return;
+                        }
+                        
+                        let html = '';
+                        data.forEach(item => {
+                            html += `<div class="suggestion-item" data-clues="${item.clues_imb}">
+                                <strong>${item.clues_imb}</strong> - ${item.nombre_de_la_unidad}
+                                <br><small class="text-muted">${item.entidad || ''}, ${item.municipio || ''}</small>
+                            </div>`;
+                        });
+                        
+                        suggestionsBox.html(html);
+                        suggestionsBox.show();
+                        
+                        $('.suggestion-item').off('click').on('click', function() {
+                            const cluesId = $(this).data('clues');
+                            $('#clues').val(cluesId);
+                            suggestionsBox.hide();
+                            cargarDatosCLUES(cluesId);
+                        });
+                    },
+                    error: function() {
+                        mostrarLoading('clues', false);
+                        mostrarError('clues', 'Error al buscar CLUES');
+                    }
+                });
+            }, 300);
+        });
+        
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#clues').length) {
+                $('#cluesSuggestions').hide();
+            }
+        });
+        
+        // ============================================
+        // 4. CARGAR DATOS DE CLUES
+        // ============================================
+        function cargarDatosCLUES(cluesId) {
+            mostrarLoading('clues', true);
+            
+            $.ajax({
+                url: '/api/get_clues_data',
+                method: 'GET',
+                data: { clues: cluesId },
+                success: function(data) {
+                    mostrarLoading('clues', false);
+                    
+                    if (data.nombre) {
+                        $('#nombreUnidad').val(data.nombre);
+                        $('#estado').val(data.entidad || '');
+                        $('#municipio').val(data.municipio || '');
+                        mostrarExito('clues', 'CLUES válida');
+                    } else {
+                        $('#nombreUnidad').val('');
+                        $('#estado').val('');
+                        $('#municipio').val('');
+                        mostrarError('clues', 'CLUES no encontrada en el catálogo');
+                    }
+                },
+                error: function() {
+                    mostrarLoading('clues', false);
+                    mostrarError('clues', 'Error al cargar datos de CLUES');
+                }
+            });
+        }
+        
+        // ============================================
+        // 5. CARGAR LISTA DE PUESTOS (R05)
+        // ============================================
+        function cargarPuestos() {
+            mostrarLoading('puesto', true);
+            
+            $.ajax({
+                url: '/api/get_puestos',
+                method: 'GET',
+                success: function(data) {
+                    mostrarLoading('puesto', false);
+                    const select = $('#puestoSolicitado');
+                    select.empty();
+                    select.append('<option value="">Seleccione un puesto...</option>');
+                    
+                    data.forEach(puesto => {
+                        const nivel = puesto.nivel || '';
+                        select.append(`<option value="${puesto.descripcion_de_puesto}" data-nivel="${nivel}">${puesto.descripcion_de_puesto}</option>`);
+                    });
+                },
+                error: function() {
+                    mostrarLoading('puesto', false);
+                    console.error('Error al cargar puestos');
+                }
+            });
+        }
+        
+        // ============================================
+        // 6. VALIDACIÓN DE PUESTO (R03)
+        // ============================================
+        $('#puestoSolicitado').on('change', function() {
+            const selected = $(this).find('option:selected');
+            const nivel = selected.data('nivel');
+            $('#nivelPuesto').val(nivel || '');
+            
+            if (!selected.val()) {
+                $(this).removeClass('is-valid is-invalid');
+                return;
+            }
+            
+            $.ajax({
+                url: '/api/validate_puesto',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ puesto: selected.val() }),
+                success: function(data) {
+                    if (data.valido) {
+                        $(this).removeClass('is-invalid').addClass('is-valid');
+                    } else {
+                        $(this).removeClass('is-valid').addClass('is-invalid');
+                    }
+                }.bind(this)
+            });
+        });
+        
+        // ============================================
+        // 7. CONTADOR DE CARACTERES
+        // ============================================
+        $('#observaciones').on('input', function() {
+            const length = $(this).val().length;
+            const max = 500;
+            $('#contadorCaracteres').text(`${length}/${max}`);
+            
+            if (length > max) {
+                $(this).val($(this).val().substring(0, max));
+                $('#contadorCaracteres').text(`${max}/${max}`);
+            }
+        });
+        
+        // ============================================
+        // 8. GESTIÓN DE DOCUMENTOS
+        // ============================================
+        function agregarDocumento(tipo = null) {
+            if (documentosCargados.length >= 10) {
+                alert('No puede agregar más de 10 documentos');
+                return;
+            }
+            
+            const container = $('#documentosContainer');
+            const docId = 'doc_' + Date.now() + '_' + contadorDocumentos++;
+            
+            const html = `
+                <div class="document-upload" id="${docId}">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <label class="form-label">Tipo de Documento</label>
+                            <select class="form-select tipo-documento">
+                                ${tiposDocumento.map(t => `<option value="${t}" ${t === tipo ? 'selected' : ''}>${t}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Archivo (PDF)</label>
+                            <input type="file" class="form-control archivo-pdf" accept=".pdf" data-doc-id="${docId}">
+                            <div class="file-upload-status" id="status_${docId}">
+                                <span class="file-name"><i class="fas fa-file-pdf me-1"></i> <span class="nombre-archivo"></span></span>
+                                <span class="file-size text-muted ms-2"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <button type="button" class="btn btn-danger btn-sm eliminar-documento" data-doc-id="${docId}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="validation-error mt-2">Error: <span class="mensaje-error"></span></div>
+                </div>
+            `;
+            
+            container.append(html);
+            
+            const docElement = $(`#${docId}`);
+            
+            docElement.find('.archivo-pdf').on('change', function() {
+                manejarCargaDocumento(this, docId);
+            });
+            
+            docElement.find('.eliminar-documento').on('click', function() {
+                if (confirm('¿Está seguro de eliminar este documento?')) {
+                    const index = documentosCargados.indexOf(docId);
+                    if (index > -1) {
+                        documentosCargados.splice(index, 1);
+                    }
+                    $(`#${docId}`).remove();
+                }
+            });
+        }
+        
+        function manejarCargaDocumento(input, docId) {
+            const file = input.files[0];
+            const statusDiv = $(`#status_${docId}`);
+            const errorDiv = $(`#${docId}`).find('.validation-error');
+            
+            if (!file) {
+                statusDiv.removeClass('visible');
+                return;
+            }
+            
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                errorDiv.find('.mensaje-error').text('Solo se permiten archivos PDF');
+                errorDiv.show();
+                statusDiv.removeClass('visible');
+                input.value = '';
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                errorDiv.find('.mensaje-error').text('El archivo excede el límite de 5MB');
+                errorDiv.show();
+                statusDiv.removeClass('visible');
+                input.value = '';
+                return;
+            }
+            
+            errorDiv.hide();
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            $.ajax({
+                url: '/api/upload_document',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        if (!documentosCargados.includes(docId)) {
+                            documentosCargados.push(docId);
+                        }
+                        statusDiv.find('.nombre-archivo').text(response.filename);
+                        statusDiv.find('.file-size').text(`(${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+                        statusDiv.addClass('visible');
+                    } else {
+                        errorDiv.find('.mensaje-error').text(response.error || 'Error al subir archivo');
+                        errorDiv.show();
+                        statusDiv.removeClass('visible');
+                    }
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON?.error || 'Error de conexión al subir archivo';
+                    errorDiv.find('.mensaje-error').text(error);
+                    errorDiv.show();
+                    statusDiv.removeClass('visible');
+                }
+            });
+        }
+        
+        // ============================================
+        // 9. EVENTOS
+        // ============================================
+        $('#agregarDocumento').on('click', function() {
+            agregarDocumento();
+        });
+        
+        $('#btnLimpiar').on('click', function(e) {
+            e.preventDefault();
+            if (confirm('¿Está seguro de limpiar el formulario?')) {
+                $('#candidatoForm')[0].reset();
+                $('#edad').val('');
+                $('#nivelPuesto').val('');
+                $('#nombreUnidad').val('');
+                $('#estado').val('');
+                $('#municipio').val('');
+                $('#observaciones').val('');
+                $('#contadorCaracteres').text('0/500');
+                $('#documentosContainer').empty();
+                documentosCargados = [];
+                $('.validation-error').hide();
+                $('.validation-success').hide();
+                $('.file-upload-status').removeClass('visible');
+                $('#cluesSuggestions').hide();
+                tiposDocumento.forEach(tipo => {
+                    agregarDocumento(tipo);
+                });
+            }
+        });
+        
+        $('#candidatoForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            let valid = true;
+            $(this).find('[required]').each(function() {
+                if (!$(this).val()) {
+                    $(this).addClass('is-invalid');
+                    valid = false;
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            });
+            
+            if (!valid) {
+                alert('Por favor complete todos los campos obligatorios');
+                return;
+            }
+            
+            if (!$('#curp').hasClass('is-valid')) {
+                alert('La CURP no es válida. Por favor verifíquela.');
+                $('#curp').focus();
+                return;
+            }
+            
+            if (!$('#clues').hasClass('is-valid')) {
+                alert('La CLUES no es válida. Por favor verifíquela.');
+                $('#clues').focus();
+                return;
+            }
+            
+            if (!$('#puestoSolicitado').hasClass('is-valid')) {
+                alert('El puesto seleccionado no es válido.');
+                $('#puestoSolicitado').focus();
+                return;
+            }
+            
+            if (documentosCargados.length === 0) {
+                alert('Debe cargar al menos un documento');
+                return;
+            }
+            
+            const formData = {
+                curp: $('#curp').val(),
+                nombreCompleto: $('#nombreCompleto').val(),
+                fechaNacimiento: $('#fechaNacimiento').val(),
+                edad: $('#edad').val(),
+                clues: $('#clues').val(),
+                nombreUnidad: $('#nombreUnidad').val(),
+                estado: $('#estado').val(),
+                municipio: $('#municipio').val(),
+                puestoSolicitado: $('#puestoSolicitado').val(),
+                nivelPuesto: $('#nivelPuesto').val(),
+                etiquetaPerfil: $('#etiquetaPerfil').val(),
+                observaciones: $('#observaciones').val(),
+                documentos: documentosCargados,
+                fechaRegistro: new Date().toISOString()
+            };
+            
+            const btnGuardar = $('#btnGuardar');
+            const textoOriginal = btnGuardar.html();
+            btnGuardar.html('<i class="fas fa-spinner fa-spin me-2"></i>Guardando...');
+            btnGuardar.prop('disabled', true);
+            
+            $.ajax({
+                url: '/api/save_candidate',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    btnGuardar.html(textoOriginal);
+                    btnGuardar.prop('disabled', false);
+                    
+                    if (response.success) {
+                        alert(`✅ Candidato guardado correctamente\nID: ${response.candidato_id}`);
+                        $('#btnLimpiar').click();
+                    } else {
+                        alert(`❌ Error al guardar: ${response.error}`);
+                    }
+                },
+                error: function(xhr) {
+                    btnGuardar.html(textoOriginal);
+                    btnGuardar.prop('disabled', false);
+                    const error = xhr.responseJSON?.error || 'Error de conexión al guardar';
+                    alert(`❌ Error al guardar: ${error}`);
+                }
+            });
+        });
+        
+        // ============================================
+        // 10. INICIALIZACIÓN
+        // ============================================
+        function inicializar() {
+            cargarPuestos();
+            tiposDocumento.forEach(tipo => {
+                agregarDocumento(tipo);
+            });
+            console.log(' Formulario de carga de candidato inicializado');
+        }
+        
+        inicializar();
+    });
+    </script>
+</body>
+</html>
