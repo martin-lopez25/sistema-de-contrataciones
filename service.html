@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>IMSS Bienestar</title>
+    <title>IMSS Bienestar - UAS</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
@@ -13,7 +13,7 @@
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">  
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
@@ -28,6 +28,176 @@
 
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+
+    <style>
+        /* Estilos para la gráfica de barras - Estilo minimalista */
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .chart-title h2 {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .chart-title p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .chart {
+            width: 100%;
+            height: 350px;
+            display: grid;
+            grid-template-rows: repeat(100, 1fr);
+            column-gap: 40px;
+            padding: 20px 40px;
+            position: relative;
+        }
+
+        .chart-bar {
+            grid-column: sibling-index();
+            grid-row: span attr(data-value number);
+            border-radius: 6px 6px 0 0;
+            text-align: center;
+            padding-top: 15px;
+            font-size: 16px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            min-height: 30px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chart-bar:hover {
+            transform: scale(1.03);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+        }
+
+        .chart-bar .bar-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #2c3e50;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .chart-bar .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        /* Colores para cada estatus */
+        .chart-bar.accepted {
+            background: linear-gradient(180deg, #2ecc71, #27ae60);
+        }
+
+        .chart-bar.rejected {
+            background: linear-gradient(180deg, #e74c3c, #c0392b);
+        }
+
+        .chart-bar.pending {
+            background: linear-gradient(180deg, #f39c12, #e67e22);
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .legend-color {
+            width: 25px;
+            height: 25px;
+            border-radius: 4px;
+        }
+
+        .legend-color.accepted-color {
+            background: #27ae60;
+        }
+
+        .legend-color.rejected-color {
+            background: #c0392b;
+        }
+
+        .legend-color.pending-color {
+            background: #e67e22;
+        }
+
+        /* Fallback para navegadores sin soporte */
+        @supports not (order: sibling-index()) {
+            .chart-bar {
+                grid-column: var(--grid-col);
+            }
+        }
+
+        @supports not (order: attr(data-value number)) {
+            .chart-bar {
+                grid-row: var(--grid-row);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .chart {
+                height: 250px;
+                column-gap: 20px;
+                padding: 15px 20px;
+            }
+            .chart-bar {
+                font-size: 12px;
+                padding-top: 10px;
+            }
+            .chart-bar .bar-label {
+                font-size: 11px;
+                bottom: -25px;
+            }
+            .chart-bar .bar-value {
+                font-size: 11px;
+                top: -20px;
+            }
+            .chart-legend {
+                gap: 20px;
+            }
+        }
+
+        .chart-wrapper {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+    </style>
 </head>
 
 <body>
@@ -43,23 +213,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-center text-lg-end">
-                    <div class="d-inline-flex align-items-center">
-                        <a class="text-body px-2" href="">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a class="text-body px-2" href="">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a class="text-body px-2" href="">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                        <a class="text-body px-2" href="">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a class="text-body ps-2" href="">
-                            <i class="fab fa-youtube"></i>
-                        </a>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -79,233 +233,208 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto py-0">
-                        <a href="index.html" class="nav-item nav-link">Home</a>
-                        <a href="about.html" class="nav-item nav-link">About</a>
-                        <a href="service.html" class="nav-item nav-link active">Service</a>
+                        <a href="index.html" class="nav-item nav-link">Instrucciones</a>
+                        <a href="about.html" class="nav-item nav-link active">UAS</a>
+                        <a href="service.html" class="nav-item nav-link">UPE</a>
                         <div class="nav-item dropdown">
-                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Coordinacion de Enlace</a>
                             <div class="dropdown-menu m-0">
-                                <a href="blog.html" class="dropdown-item">Blog Grid</a>
-                                <a href="team.html" class="dropdown-item">The Team</a>
-                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                                <a href="appointment.html" class="dropdown-item">Appointment</a>
-                                <a href="search.html" class="dropdown-item">Search</a>
+                                <a href="blog.html" class="dropdown-item">Carga de personal</a>
+                                <a href="team.html" class="dropdown-item">Equipo</a>
+                                <a href="testimonial.html" class="dropdown-item">Testimonios</a>
+                                <a href="appointment.html" class="dropdown-item">Citas</a>
+                                <a href="search.html" class="dropdown-item">Busqueda</a>
                             </div>
                         </div>
-                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                        <a href="contact.html" class="nav-item nav-link">Contacto</a>
                     </div>
                 </div>
             </nav>
         </div>
     </div>
     <!-- Navbar End -->
-    
 
-    <!-- Services Start -->
+
+    <!-- About Start - Sección de Tablas UAS con Gráfica -->
     <div class="container-fluid py-5">
         <div class="container">
-            <div class="text-center mx-auto mb-5" style="max-width: 500px;">
-                <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Services</h5>
-                <h1 class="display-4">Excellent Medical Services</h1>
-            </div>
-            <div class="row g-5">
-                <div class="col-lg-4 col-md-6">
-                    <div class="service-item bg-light rounded d-flex flex-column align-items-center justify-content-center text-center">
-                        <div class="service-icon mb-4">
-                            <i class="fa fa-2x fa-user-md text-white"></i>
-                        </div>
-                        <h4 class="mb-3">Emergency Care</h4>
-                        <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum rebum stet, justo elitr dolor amet sit</p>
-                        <a class="btn btn-lg btn-primary rounded-pill" href="">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
+            <!-- Gráfica de Barras - Solo 3 barras -->
+            <div class="chart-container">
+                <div class="chart-title">
+                    <h2>Resumen de Contrataciones</h2>
+                    <p>Distribución de candidatos por estatus</p>
                 </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="service-item bg-light rounded d-flex flex-column align-items-center justify-content-center text-center">
-                        <div class="service-icon mb-4">
-                            <i class="fa fa-2x fa-procedures text-white"></i>
-                        </div>
-                        <h4 class="mb-3">Operation & Surgery</h4>
-                        <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum rebum stet, justo elitr dolor amet sit</p>
-                        <a class="btn btn-lg btn-primary rounded-pill" href="">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
+                <div class="chart-wrapper">
+                    <ul class="chart" tabindex="0" role="list" aria-labelledby="title">
+                        <li class="chart-bar accepted" data-value="45" tabindex="0" role="img" aria-label="45% Aceptados">
+                            45%
+                            <span class="bar-value">45</span>
+                            <span class="bar-label">Aceptados</span>
+                        </li>
+                        <li class="chart-bar rejected" data-value="25" tabindex="0" role="img" aria-label="25% Rechazados">
+                            25%
+                            <span class="bar-value">25</span>
+                            <span class="bar-label">Rechazados</span>
+                        </li>
+                        <li class="chart-bar pending" data-value="30" tabindex="0" role="img" aria-label="30% Pendientes">
+                            30%
+                            <span class="bar-value">30</span>
+                            <span class="bar-label">Pendientes</span>
+                        </li>
+                    </ul>
                 </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="service-item bg-light rounded d-flex flex-column align-items-center justify-content-center text-center">
-                        <div class="service-icon mb-4">
-                            <i class="fa fa-2x fa-stethoscope text-white"></i>
-                        </div>
-                        <h4 class="mb-3">Outdoor Checkup</h4>
-                        <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum rebum stet, justo elitr dolor amet sit</p>
-                        <a class="btn btn-lg btn-primary rounded-pill" href="">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color accepted-color"></div>
+                        <span>Aceptados</span>
                     </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="service-item bg-light rounded d-flex flex-column align-items-center justify-content-center text-center">
-                        <div class="service-icon mb-4">
-                            <i class="fa fa-2x fa-ambulance text-white"></i>
-                        </div>
-                        <h4 class="mb-3">Ambulance Service</h4>
-                        <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum rebum stet, justo elitr dolor amet sit</p>
-                        <a class="btn btn-lg btn-primary rounded-pill" href="">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
+                    <div class="legend-item">
+                        <div class="legend-color rejected-color"></div>
+                        <span>Rechazados</span>
                     </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="service-item bg-light rounded d-flex flex-column align-items-center justify-content-center text-center">
-                        <div class="service-icon mb-4">
-                            <i class="fa fa-2x fa-pills text-white"></i>
-                        </div>
-                        <h4 class="mb-3">Medicine & Pharmacy</h4>
-                        <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum rebum stet, justo elitr dolor amet sit</p>
-                        <a class="btn btn-lg btn-primary rounded-pill" href="">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="service-item bg-light rounded d-flex flex-column align-items-center justify-content-center text-center">
-                        <div class="service-icon mb-4">
-                            <i class="fa fa-2x fa-microscope text-white"></i>
-                        </div>
-                        <h4 class="mb-3">Blood Testing</h4>
-                        <p class="m-0">Kasd dolor no lorem nonumy sit labore tempor at justo rebum rebum stet, justo elitr dolor amet sit</p>
-                        <a class="btn btn-lg btn-primary rounded-pill" href="">
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
+                    <div class="legend-item">
+                        <div class="legend-color pending-color"></div>
+                        <span>Pendientes</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <!-- Services End -->
 
+            <!-- Botón Extraer Excel (Deshabilitado) -->
+            <div class="row mb-4">
+                <div class="col-12 text-end">
+                    <button class="btn btn-success btn-lg" disabled>
+                        <i class="fas fa-file-excel me-2"></i>Extraer Excel
+                    </button>
+                    <small class="text-muted ms-2">(Próximamente disponible)</small>
+                </div>
+            </div>
 
-    <!-- Appointment Start -->
-    <div class="container-fluid bg-primary my-5 py-5">
-        <div class="container py-5">
-            <div class="row gx-5">
-                <div class="col-lg-6 mb-5 mb-lg-0">
+            <!-- Tabla 1: Aceptados -->
+            <div class="row gx-5 mb-5">
+                <div class="col-12">
                     <div class="mb-4">
-                        <h5 class="d-inline-block text-white text-uppercase border-bottom border-5">Appointment</h5>
-                        <h1 class="display-4">Make An Appointment For Your Family</h1>
+                        <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Listado</h5>
+                        <h1 class="display-4">Aceptados</h1>
                     </div>
-                    <p class="text-white mb-5">Eirmod sed tempor lorem ut dolores. Aliquyam sit sadipscing kasd ipsum. Dolor ea et dolore et at sea ea at dolor, justo ipsum duo rebum sea invidunt voluptua. Eos vero eos vero ea et dolore eirmod et. Dolores diam duo invidunt lorem. Elitr ut dolores magna sit. Sea dolore sanctus sed et. Takimata takimata sanctus sed.</p>
-                    <a class="btn btn-dark rounded-pill py-3 px-5 me-3" href="">Find Doctor</a>
-                    <a class="btn btn-outline-dark rounded-pill py-3 px-5" href="">Read More</a>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-success">
+                                <tr>
+                                    <th>CLUES</th>
+                                    <th>CURP</th>
+                                    <th>Puesto</th>
+                                    <th>Estatus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CLUES001</td>
+                                    <td>CURP123456789</td>
+                                    <td>Médico General</td>
+                                    <td><span class="badge bg-success">Aceptado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>CLUES002</td>
+                                    <td>CURP987654321</td>
+                                    <td>Enfermera</td>
+                                    <td><span class="badge bg-success">Aceptado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>CLUES003</td>
+                                    <td>CURP456789123</td>
+                                    <td>Especialista</td>
+                                    <td><span class="badge bg-success">Aceptado</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="bg-white text-center rounded p-5">
-                        <h1 class="mb-4">Book An Appointment</h1>
-                        <form>
-                            <div class="row g-3">
-                                <div class="col-12 col-sm-6">
-                                    <select class="form-select bg-light border-0" style="height: 55px;">
-                                        <option selected>Choose Department</option>
-                                        <option value="1">Department 1</option>
-                                        <option value="2">Department 2</option>
-                                        <option value="3">Department 3</option>
-                                    </select>
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <select class="form-select bg-light border-0" style="height: 55px;">
-                                        <option selected>Select Doctor</option>
-                                        <option value="1">Doctor 1</option>
-                                        <option value="2">Doctor 2</option>
-                                        <option value="3">Doctor 3</option>
-                                    </select>
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <input type="text" class="form-control bg-light border-0" placeholder="Your Name" style="height: 55px;">
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <input type="email" class="form-control bg-light border-0" placeholder="Your Email" style="height: 55px;">
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <div class="date" id="date" data-target-input="nearest">
-                                        <input type="text"
-                                            class="form-control bg-light border-0 datetimepicker-input"
-                                            placeholder="Date" data-target="#date" data-toggle="datetimepicker" style="height: 55px;">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <div class="time" id="time" data-target-input="nearest">
-                                        <input type="text"
-                                            class="form-control bg-light border-0 datetimepicker-input"
-                                            placeholder="Time" data-target="#time" data-toggle="datetimepicker" style="height: 55px;">
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <button class="btn btn-primary w-100 py-3" type="submit">Make An Appointment</button>
-                                </div>
-                            </div>
-                        </form>
+            </div>
+
+            <!-- Tabla 2: Rechazados -->
+            <div class="row gx-5 mb-5">
+                <div class="col-12">
+                    <div class="mb-4">
+                        <h1 class="display-4">Rechazados</h1>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-danger">
+                                <tr>
+                                    <th>CLUES</th>
+                                    <th>CURP</th>
+                                    <th>Puesto</th>
+                                    <th>Estatus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CLUES004</td>
+                                    <td>CURP741852963</td>
+                                    <td>Médico General</td>
+                                    <td><span class="badge bg-danger">Rechazado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>CLUES005</td>
+                                    <td>CURP159357258</td>
+                                    <td>Enfermera</td>
+                                    <td><span class="badge bg-danger">Rechazado</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla 3: Pendientes -->
+            <div class="row gx-5">
+                <div class="col-12">
+                    <div class="mb-4">
+                        <h1 class="display-4">Pendientes</h1>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-warning">
+                                <tr>
+                                    <th>CLUES</th>
+                                    <th>CURP</th>
+                                    <th>Puesto</th>
+                                    <th>Estatus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CLUES006</td>
+                                    <td>CURP753951852</td>
+                                    <td>Especialista</td>
+                                    <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                                </tr>
+                                <tr>
+                                    <td>CLUES007</td>
+                                    <td>CURP852963741</td>
+                                    <td>Médico General</td>
+                                    <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                                </tr>
+                                <tr>
+                                    <td>CLUES008</td>
+                                    <td>CURP963258741</td>
+                                    <td>Enfermera</td>
+                                    <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                                </tr>
+                                <tr>
+                                    <td>CLUES009</td>
+                                    <td>CURP159753486</td>
+                                    <td>Especialista</td>
+                                    <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Appointment End -->
-
-
-    <!-- Testimonial Start -->
-    <div class="container-fluid py-5">
-        <div class="container">
-            <div class="text-center mx-auto mb-5" style="max-width: 500px;">
-                <h5 class="d-inline-block text-primary text-uppercase border-bottom border-5">Testimonial</h5>
-                <h1 class="display-4">Patients Say About Our Services</h1>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="owl-carousel testimonial-carousel">
-                        <div class="testimonial-item text-center">
-                            <div class="position-relative mb-5">
-                                <img class="img-fluid rounded-circle mx-auto" src="img/testimonial-1.jpg" alt="">
-                                <div class="position-absolute top-100 start-50 translate-middle d-flex align-items-center justify-content-center bg-white rounded-circle" style="width: 60px; height: 60px;">
-                                    <i class="fa fa-quote-left fa-2x text-primary"></i>
-                                </div>
-                            </div>
-                            <p class="fs-4 fw-normal">Dolores sed duo clita tempor justo dolor et stet lorem kasd labore dolore lorem ipsum. At lorem lorem magna ut et, nonumy et labore et tempor diam tempor erat. Erat dolor rebum sit ipsum.</p>
-                            <hr class="w-25 mx-auto">
-                            <h3>Patient Name</h3>
-                            <h6 class="fw-normal text-primary mb-3">Profession</h6>
-                        </div>
-                        <div class="testimonial-item text-center">
-                            <div class="position-relative mb-5">
-                                <img class="img-fluid rounded-circle mx-auto" src="img/testimonial-2.jpg" alt="">
-                                <div class="position-absolute top-100 start-50 translate-middle d-flex align-items-center justify-content-center bg-white rounded-circle" style="width: 60px; height: 60px;">
-                                    <i class="fa fa-quote-left fa-2x text-primary"></i>
-                                </div>
-                            </div>
-                            <p class="fs-4 fw-normal">Dolores sed duo clita tempor justo dolor et stet lorem kasd labore dolore lorem ipsum. At lorem lorem magna ut et, nonumy et labore et tempor diam tempor erat. Erat dolor rebum sit ipsum.</p>
-                            <hr class="w-25 mx-auto">
-                            <h3>Patient Name</h3>
-                            <h6 class="fw-normal text-primary mb-3">Profession</h6>
-                        </div>
-                        <div class="testimonial-item text-center">
-                            <div class="position-relative mb-5">
-                                <img class="img-fluid rounded-circle mx-auto" src="img/testimonial-3.jpg" alt="">
-                                <div class="position-absolute top-100 start-50 translate-middle d-flex align-items-center justify-content-center bg-white rounded-circle" style="width: 60px; height: 60px;">
-                                    <i class="fa fa-quote-left fa-2x text-primary"></i>
-                                </div>
-                            </div>
-                            <p class="fs-4 fw-normal">Dolores sed duo clita tempor justo dolor et stet lorem kasd labore dolore lorem ipsum. At lorem lorem magna ut et, nonumy et labore et tempor diam tempor erat. Erat dolor rebum sit ipsum.</p>
-                            <hr class="w-25 mx-auto">
-                            <h3>Patient Name</h3>
-                            <h6 class="fw-normal text-primary mb-3">Profession</h6>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Testimonial End -->
+    <!-- About End -->
 
 
     <!-- Footer Start -->
@@ -349,13 +478,7 @@
                             <button class="btn btn-primary">Sign Up</button>
                         </div>
                     </form>
-                    <h6 class="text-primary text-uppercase mt-4 mb-3">Follow Us</h6>
-                    <div class="d-flex">
-                        <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-2" href="#"><i class="fab fa-twitter"></i></a>
-                        <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-2" href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a class="btn btn-lg btn-primary btn-lg-square rounded-circle me-2" href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a class="btn btn-lg btn-primary btn-lg-square rounded-circle" href="#"><i class="fab fa-instagram"></i></a>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -367,8 +490,6 @@
                     <p class="mb-md-0">&copy; <a class="text-primary" href="#">Your Site Name</a>. All Rights Reserved.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <!--/*** The author’s attribution link below must remain intact on your website. ***/-->
-                    <!--/*** If you wish to remove this credit link, please purchase the Pro Version from https://htmlcodex.com/downloading/?item=1609 . ***/-->
                     <p class="mb-0">Designed by <a class="text-primary" href="https://htmlcodex.com">HTML Codex</a></p>
                 </div>
             </div>
@@ -393,6 +514,24 @@
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+
+    <script>
+        // Fallback para navegadores sin soporte de CSS moderno
+        (function() {
+            const ITEMS = document.querySelectorAll('.chart-bar');
+            if (!CSS.supports('order', 'sibling-index()')) {
+                ITEMS.forEach((ele, idx) => {
+                    ele.style.setProperty('grid-column', `${idx + 1}`);
+                });
+            }
+            if (!CSS.supports('order', 'attr(data-value number)')) {
+                ITEMS.forEach(ele => {
+                    const value = ele.dataset.value;
+                    ele.style.setProperty('grid-row', `span ${value}`);
+                });
+            }
+        })();
+    </script>
 </body>
 
 </html>
