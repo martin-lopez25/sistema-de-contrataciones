@@ -475,7 +475,7 @@
         }
         
         // ============================================
-        // 1. VALIDACIÓN DE CURP (R01 y R02)
+        // 1. VALIDACIÓN BÁSICA DE CURP
         // ============================================
         $('#curp').on('blur', function() {
             const curp = $(this).val().toUpperCase();
@@ -501,7 +501,33 @@
                 success: function(data) {
                     mostrarLoading('curp', false);
                     if (data.valido) {
-                        mostrarExito('curp', data.mensaje);
+                        mostrarExito('curp', 'CURP válida — consultando datos...');
+                        // Consultar datos personales al servicio externo
+                        mostrarLoading('curp', true);
+                        $.ajax({
+                            url: '/api/consultar_curp_datos',
+                            method: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ curp: curp }),
+                            success: function(resp) {
+                                console.log('Respuesta consultar_curp_datos:', resp);
+                                mostrarLoading('curp', false);
+                                if (resp.success) {
+                                    $('#nombreCompleto').val(resp.nombre_completo || '');
+                                    if (resp.fecha_nacimiento) {
+                                        $('#fechaNacimiento').val(resp.fecha_nacimiento);
+                                        $('#fechaNacimiento').trigger('change');
+                                    }
+                                    mostrarExito('curp', 'CURP válida — datos cargados');
+                                } else {
+                                    mostrarExito('curp', 'CURP válida (datos no disponibles en servicio externo)');
+                                }
+                            },
+                            error: function() {
+                                mostrarLoading('curp', false);
+                                mostrarExito('curp', 'CURP válida (sin conexión al servicio externo)');
+                            }
+                        });
                     } else {
                         mostrarError('curp', data.mensaje);
                     }

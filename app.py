@@ -3,12 +3,18 @@ from __future__ import annotations
 import json
 import os
 import re
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 from flask import Flask, jsonify, request, send_from_directory
 from werkzeug.utils import secure_filename
+
+# ============================================================
+# NUEVA IMPORTACIÓN PARA CONSULTAR CURP EXTERNA
+# ============================================================
+import requests  # <--- NUEVA IMPORTACIÓN
 
 
 ROOT_DIR = Path(__file__).resolve().parent
@@ -85,23 +91,9 @@ def validar_curp(curp: str) -> dict[str, object]:
         return {"valido": False, "mensaje": "La CURP debe tener 18 caracteres"}
 
     curp = curp.upper()
-    patron = r"^[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9]{2}$"
+    patron = r"^[A-Z0-9Ñ]{18}$"
     if not re.match(patron, curp):
-        return {"valido": False, "mensaje": "Formato de CURP inválido. Ejemplo: GODE561231HDFRRL09"}
-
-    try:
-        caracteres = "0123456789ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
-        valores = {char: index for index, char in enumerate(caracteres)}
-        suma = 0
-        for index, char in enumerate(curp[:17]):
-            suma += valores.get(char, 0) * (18 - index)
-
-        digito_esperado = (10 - (suma % 10)) % 10
-        digito_obtenido = int(curp[17]) if curp[17].isdigit() else -1
-        if digito_obtenido != digito_esperado:
-            return {"valido": False, "mensaje": "Dígito verificador incorrecto"}
-    except Exception as exc:
-        return {"valido": False, "mensaje": f"Error en validación: {exc}"}
+        return {"valido": False, "mensaje": "La CURP solo puede contener letras y números"}
 
     return {"valido": True, "mensaje": "CURP válida"}
 
@@ -120,6 +112,207 @@ def validar_clues(clues: str) -> dict[str, object]:
 
     existe = (clues_df["clues_imb"].astype(str).str.upper() == clues.upper()).any()
     return {"valido": bool(existe), "mensaje": "CLUES válida" if existe else "CLUES no encontrada en catálogo"}
+
+
+def _normalizar_llave(llave: str) -> str:
+    texto = unicodedata.normalize("NFKD", str(llave))
+    texto = "".join(ch for ch in texto if not unicodedata.combining(ch))
+    return re.sub(r"[^a-z0-9]", "", texto.lower())
+
+
+def _buscar_valor(payload: object, aliases: list[str]) -> str:
+    objetivos = {_normalizar_llave(alias) for alias in aliases}
+    cola: list[object] = [payload]
+
+    while cola:
+        actual = cola.pop(0)
+        if isinstance(actual, dict):
+            for clave, valor in actual.items():
+                if _normalizar_llave(clave) in objetivos and valor not in (None, ""):
+                    return str(valor).strip()
+            cola.extend(actual.values())
+        elif isinstance(actual, list):
+            cola.extend(actual)
+
+    return ""
+
+
+def _fecha_iso_desde_curp(curp: str) -> str:
+    if len(curp) < 10:
+        return ""
+
+    yymmdd = curp[4:10]
+    if not yymmdd.isdigit():
+        return ""
+
+    yy = int(yymmdd[0:2])
+    mm = int(yymmdd[2:4])
+    dd = int(yymmdd[4:6])
+    anio_actual = datetime.now().year % 100
+    siglo = 2000 if yy <= anio_actual else 1900
+
+    try:
+        fecha = datetime(siglo + yy, mm, dd)
+        return fecha.strftime("%Y-%m-%d")
+    except ValueError:
+        return ""
+
+
+def _normalizar_fecha_iso(fecha_raw: str, curp: str = "") -> str:
+    valor = str(fecha_raw or "").strip()
+    if not valor:
+        return _fecha_iso_desde_curp(curp)
+
+    formatos = [
+        "%Y-%m-%d",
+        "%d-%m-%Y",
+        "%d/%m/%Y",
+        "%Y/%m/%d",
+        "%Y%m%d",
+        "%d%m%Y",
+        "%d.%m.%Y",
+        "%Y.%m.%d",
+    ]
+
+    for formato in formatos:
+        try:
+            return datetime.strptime(valor, formato).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+
+    solo_numeros = re.sub(r"\D", "", valor)
+    if len(solo_numeros) == 8:
+        for formato in ("%Y%m%d", "%d%m%Y"):
+            try:
+                return datetime.strptime(solo_numeros, formato).strftime("%Y-%m-%d")
+            except ValueError:
+                continue
+
+    return _fecha_iso_desde_curp(curp)
+
+
+# ============================================================
+# NUEVA FUNCIÓN: CONSULTAR CURP EN SERVICIO EXTERNO
+# ============================================================
+def consultar_curp_externa(curp: str) -> dict:
+    """
+    Consulta los datos personales de una CURP usando el servicio de Nuevo León
+    """
+    headers = {
+        "user-agent": "Mozilla/5.0",
+        "content-type": "application/json; charset=utf-8"
+    }
+    
+    payload = {"curp": curp.strip()}
+    
+    try:
+        sesion = requests.Session()
+        req = sesion.post(
+            "https://us-central1-os-gobierno-de-nuevo-leon.cloudfunctions.net/nuevoLeon-checkCurp",
+            data=json.dumps(payload),
+            headers=headers,
+            verify=False
+        )
+        
+        if req.status_code == 200:
+            data = req.json()
+
+            nombre = _buscar_valor(data, [
+                "nombre",
+                "nombres",
+                "name",
+                "given_name",
+                "givenname",
+            ])
+            primer_apellido = _buscar_valor(data, [
+                "primer_apellido",
+                "apellido_paterno",
+                "apellidopaterno",
+                "apePat",
+                "paterno",
+                "apellido1",
+                "first_surname",
+                "firstsurname",
+            ])
+            segundo_apellido = _buscar_valor(data, [
+                "segundo_apellido",
+                "apellido_materno",
+                "apellidomaterno",
+                "apeMat",
+                "materno",
+                "apellido2",
+                "second_surname",
+                "secondsurname",
+            ])
+
+            nombre_completo_raw = _buscar_valor(data, [
+                "nombre_completo",
+                "nombrecompleto",
+                "full_name",
+                "fullname",
+            ])
+            if not nombre and nombre_completo_raw:
+                nombre = nombre_completo_raw
+
+            fecha_raw = _buscar_valor(data, [
+                "fecha_nacimiento",
+                "fechaNacimiento",
+                "fechanacimiento",
+                "nacimiento",
+                "fecha_nac",
+                "birth_date",
+                "birthdate",
+            ])
+
+            return {
+                "success": True,
+                "nombre": nombre,
+                "primer_apellido": primer_apellido,
+                "segundo_apellido": segundo_apellido,
+                "fecha_nacimiento": _normalizar_fecha_iso(fecha_raw, curp),
+                "sexo": _buscar_valor(data, ["sexo", "genero", "sex"]),
+                "curp": curp.strip(),
+                "datos_completos": data
+            }
+        else:
+            return {
+                "success": False,
+                "error": "No se encontró información para esta CURP"
+            }
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Error al consultar el servicio: {str(e)}"
+        }
+
+
+@app.post("/api/debug_curp_raw")
+def debug_curp_raw() -> object:
+    """Endpoint temporal: devuelve la respuesta cruda del servicio externo"""
+    data = request.get_json(silent=True) or {}
+    curp = str(data.get("curp", "")).upper().strip()
+    headers = {
+        "user-agent": "Mozilla/5.0",
+        "content-type": "application/json; charset=utf-8"
+    }
+    try:
+        import urllib3
+        urllib3.disable_warnings()
+        sesion = requests.Session()
+        req = sesion.post(
+            "https://us-central1-os-gobierno-de-nuevo-leon.cloudfunctions.net/nuevoLeon-checkCurp",
+            data=json.dumps({"curp": curp}),
+            headers=headers,
+            verify=False
+        )
+        try:
+            raw_json = req.json()
+        except Exception:
+            raw_json = None
+        return jsonify({"status_code": req.status_code, "raw_text": req.text[:2000], "raw_json": raw_json})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 
 @app.get("/")
@@ -186,6 +379,74 @@ def get_puestos() -> object:
 def validate_curp() -> object:
     data = request.get_json(silent=True) or {}
     return jsonify(validar_curp(str(data.get("curp", ""))))
+
+
+# ============================================================
+# NUEVO ENDPOINT: CONSULTAR DATOS PERSONALES POR CURP
+# ============================================================
+@app.post("/api/consultar_curp_datos")
+def consultar_curp_datos() -> object:
+    """
+    Endpoint para consultar datos personales a partir de la CURP
+    """
+    data = request.get_json(silent=True) or {}
+    curp = str(data.get("curp", "")).upper().strip()
+    
+    if not curp:
+        return jsonify({
+            "success": False,
+            "error": "CURP no proporcionada"
+        }), 400
+    
+    if len(curp) != 18:
+        return jsonify({
+            "success": False,
+            "error": "La CURP debe tener 18 caracteres"
+        }), 400
+    
+    validacion = validar_curp(curp)
+    if not validacion["valido"]:
+        return jsonify({
+            "success": False,
+            "error": validacion["mensaje"]
+        }), 400
+    
+    resultado = consultar_curp_externa(curp)
+    
+    if resultado["success"]:
+        nombre_completo = " ".join(filter(None, [
+            resultado.get("primer_apellido", ""),
+            resultado.get("segundo_apellido", ""),
+            resultado.get("nombre", "")
+        ])).strip()
+
+        if not nombre_completo:
+            nombre_completo = _buscar_valor(resultado.get("datos_completos", {}), [
+                "nombre_completo",
+                "nombrecompleto",
+                "full_name",
+                "fullname",
+            ])
+
+        fecha_formateada = resultado.get("fecha_nacimiento", "")
+        
+        return jsonify({
+            "success": True,
+            "nombre_completo": nombre_completo,
+            "primer_apellido": resultado.get("primer_apellido", ""),
+            "segundo_apellido": resultado.get("segundo_apellido", ""),
+            "nombre": resultado.get("nombre", ""),
+            "fecha_nacimiento": fecha_formateada,
+            "sexo": resultado.get("sexo", ""),
+            "curp": curp,
+            "mensaje": "Datos obtenidos correctamente",
+            "datos_completos": resultado.get("datos_completos", {})
+        })
+    else:
+        return jsonify({
+            "success": False,
+            "error": resultado.get("error", "No se pudieron obtener los datos")
+        }), 404
 
 
 @app.post("/api/validate_puesto")
